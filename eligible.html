@@ -26,13 +26,32 @@ title: Eligible for SODA Study
             color: #333;
             margin-bottom: 20px;
         }
-        input[type="email"] {
-            width: 80%;
+        .contact-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
             max-width: 400px;
+            margin: auto;
+        }
+        .contact-container select,
+        .contact-container input {
+            width: 100%;
             padding: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
+        }
+        .phone-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            width: 100%;
+        }
+        .phone-container select {
+            flex: 1;
+        }
+        .phone-container input {
+            flex: 2;
         }
         .submit-button {
             background-color: #007BFF;
@@ -50,26 +69,17 @@ title: Eligible for SODA Study
 </head>
 <body>
     <h1>We are happy to inform you that you have passed the prescreening and are likely to be eligible to participate in the SODA study!
-You are now invited for a medical screening to determine your full eligibilty to participate in the study.</h1>
-    <p>Enter your contact details if you wish to be contacted about joining the study.</p>
-   <form id="contact-form">
-        <input type="text" name="name" placeholder="Your first name" required>
-        <br>
+You are now invited for a medical screening to determine your full eligibility to participate in the study.</h1>
+    <p>Enter your details if you wish to be contacted about joining the study.</p>
+    <form id="contact-form" class="contact-container">
+        <input type="text" name="name" placeholder="Your full name" required>
         <input type="email" name="email" placeholder="Your email address" required>
-        <br>
         <div class="phone-container">
-            <select name="country-code" required>
-                <option value="+1">+1 (USA)</option>
-                <option value="+44">+44 (UK)</option>
-                <option value="+33">+33 (France)</option>
-                <option value="+49">+49 (Germany)</option>
-                <option value="+61">+61 (Australia)</option>
-                <option value="+91">+91 (India)</option>
-                <option value="other">Other</option>
+            <select name="country-code" required id="country-code">
+                <option value="">Select Country Code</option>
             </select>
             <input type="tel" name="phone" placeholder="Your phone number" required>
         </div>
-        <br>
         <button type="submit" class="submit-button">Submit</button>
     </form>
 
@@ -89,6 +99,30 @@ You are now invited for a medical screening to determine your full eligibilty to
                 alert('Please fill out all fields correctly.');
             }
         });
+
+        // Populate country codes dynamically
+        async function fetchCountryCodes() {
+            const countrySelect = document.getElementById("country-code");
+            try {
+                const response = await fetch("https://restcountries.com/v3.1/all");
+                const countries = await response.json();
+                const sortedCountries = countries.sort((a, b) => a.name.common.localeCompare(b.name.common));
+                
+                sortedCountries.forEach(country => {
+                    if (country.idd && country.idd.root) {
+                        const code = country.idd.root + (country.idd.suffixes ? country.idd.suffixes[0] : "");
+                        const option = document.createElement("option");
+                        option.value = code;
+                        option.textContent = `${code} (${country.name.common})`;
+                        countrySelect.appendChild(option);
+                    }
+                });
+            } catch (error) {
+                console.error("Failed to load country codes", error);
+            }
+        }
+        fetchCountryCodes();
     </script>
 </body>
 </html>
+
